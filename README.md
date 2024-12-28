@@ -86,7 +86,8 @@ Ces deux fichiers servent d’**entrée** à notre notebook, où l’analyse et 
      ```
    - *NB :* Si vous voulez exécuter les scripts de scraping, installez et configurez également **Playwright**.
 
-3. **Lancer le notebook** :  
+3. **Lancer le notebook** :
+   - Selectionner l'interpreteur **python 3.10.12**
    - Ouvrez le notebook principal et exécutez toutes les cellules.  
    - Vous pourrez ainsi explorer les données, effectuer le nettoyage et constater les premiers résultats de l’analyse et du système de recommandation.
 
