@@ -77,7 +77,6 @@ Ces deux fichiers servent d’**entrée** à notre notebook, où l’analyse et 
 # <span style="color:#008080">6. Comment Lancer le Projet</span>
 
 1. **Cloner le dépôt Git** sur votre environnement (ex. [SSPCloud](https://www.sspcloud.fr/)).  
-   - Assurez-vous de bien **ouvrir le dépôt** directement, et de **ne pas** le copier à l’intérieur d’un autre dossier *work* afin que tous les chemins relatifs fonctionnent correctement.
 
 2. **Installer les dépendances** :  
    - Dans la première cellule du notebook, exécuter :  
