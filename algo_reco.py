@@ -1,11 +1,10 @@
 # algo_reco.py
 
 """
-Ce module implémente un algorithme de recommandation basique
-qui lit les préférences de l'utilisateur depuis 'reponses_formulaire.xlsx'
-et les données des universités depuis 'final_dataset.xlsx'.
-Il renvoie une liste (DataFrame) d'environ 8 à 12 universités recommandées
-accompagnées d'un score de "fitting".
+Ce module propose un algorithme de recommandation simple, qui lit les préférences 
+utilisateur dans « reponses_formulaire.xlsx » et les données d’universités dans 
+« final_dataset.xlsx ». Il produit un ensemble (DataFrame) d’environ 8 à 12 établissements 
+suggérés, assortis d’un score de “fitting”.
 """
 
 import pandas as pd
