@@ -83,6 +83,7 @@ Ces deux fichiers servent d’**entrée** à notre notebook, où l’analyse et 
      ```bash
      pip install -r requirements.txt
      ```
+   - Restart le kernel
    - *NB :* Si vous voulez exécuter les scripts de scraping, installez et configurez également **Playwright**.
 
 3. **Lancer le notebook** :
