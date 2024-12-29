@@ -4,9 +4,11 @@
 """
 formulaire.py
 
-Affiche un formulaire d'informations dans un Notebook Jupyter (via ipywidgets),
-en récupérant la liste des majors depuis final_dataset.xlsx (colonnes major_top1, major_top2, major_top3).
-Les réponses sont enregistrées dans 'reponses_formulaire.xlsx' en écrasant l'ancien contenu.
+Ce script affiche un formulaire dans un Notebook Jupyter grâce à ipywidgets, 
+en récupérant la liste des majors (colonnes major_top1, major_top2, major_top3)
+ depuis final_dataset.xlsx. Les réponses de l’utilisateur sont enregistrées dans 
+ le fichier reponses_formulaire.xlsx, en remplaçant systématiquement l’ancien contenu.
+ 
 """
 
 import pandas as pd
