@@ -20,4 +20,3 @@ streamlit
 tqdm
 ipywidgets
 openpyxl
-itertools
