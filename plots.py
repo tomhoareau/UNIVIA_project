@@ -197,103 +197,92 @@ def plot_adjusted_grades_histogram(df, low_col='low_grade_adjusted', high_col='h
 import pandas as pd
 import plotly.graph_objects as go
 import plotly.colors as pcolors
-import ipywidgets as widgets
 from itertools import cycle
-from IPython.display import display
 
 def plot_top_majors(df, max_majors=20):
     """
-    Crée un diagramme à barres horizontal interactif présentant les majeures les plus populaires.
+    Crée un diagramme à barres horizontal montrant les majeures les plus populaires,
+    sans interaction de clic ni widget d'information supplémentaire.
 
-    Arguments :
-        df (pd.DataFrame) : Le DataFrame contenant les colonnes 'major_top1' et 'Name'.
-        max_majors (int) : Le nombre maximal de majeures à afficher.
+    Paramètres :
+    -----------
+    df : pd.DataFrame
+        Le DataFrame contenant au minimum les colonnes 'major_top1' et 'Name'.
+    max_majors : int
+        Le nombre maximal de majeures à afficher dans le diagramme.
 
     Retour :
-        None : Affiche le graphique et un widget de sortie pour des informations supplémentaires.
+    -------
+    None
+        Affiche simplement la figure Plotly.
     """
-    # Vérification que les colonnes nécessaires existent
+    # Vérification de la présence des colonnes nécessaires
     if 'major_top1' not in df.columns or 'Name' not in df.columns:
         print("Les colonnes 'major_top1' ou 'Name' sont manquantes dans le DataFrame.")
         return
     
-    # Regrouper par 'major_top1' et compter le nombre d'universités pour chaque majeure
-    major_counts = df.groupby('major_top1').agg({
-        'Name': list,  # Liste des universités pour lesquelles cette majeure est top1
-        'major_top1': 'count'  # Nombre d'universités ayant cette majeure en top1
-    }).rename(columns={'major_top1': 'Number of Universities'}).reset_index()
-    
-    # Trier les résultats par ordre décroissant du nombre d'universités
+    # Regrouper par 'major_top1' et compter le nombre d'universités
+    major_counts = (
+        df.groupby('major_top1')['Name']
+          .count()
+          .reset_index(name='Number of Universities')
+    )
+
+    # Trier par ordre décroissant du nombre d'universités
     major_counts = major_counts.sort_values(by='Number of Universities', ascending=False)
-    
-    # Ne garder que les N premières majeures (défini par max_majors)
+
+    # Ne garder que les top N majeures
     major_counts = major_counts.head(max_majors)
-    
-    # Création d'une palette de couleurs
-    colors = pcolors.qualitative.Plotly  # Palette par défaut de Plotly
+
+    # Déterminer les couleurs pour chaque barre
+    colors = pcolors.qualitative.Plotly  # Palette de couleurs par défaut de Plotly
     num_colors = len(colors)
     num_bars = len(major_counts)
-    
-    # Si le nombre de barres dépasse le nombre de couleurs disponibles, on réitère la palette
     if num_bars > num_colors:
         bar_colors = [color for _, color in zip(range(num_bars), cycle(colors))]
     else:
         bar_colors = colors[:num_bars]
-    
-    # Création d'un diagramme à barres horizontal avec Plotly
-    fig = go.FigureWidget(
+
+    # Créer la figure
+    fig = go.Figure(
         data=[
             go.Bar(
                 x=major_counts['Number of Universities'],
                 y=major_counts['major_top1'],
                 orientation='h',
                 text=major_counts['Number of Universities'],
-                customdata=major_counts['Name'],
                 marker_color=bar_colors,
-                hovertemplate='<b>%{y}</b><br>Number of Universities: %{x}<extra></extra>',
+                hovertemplate=(
+                    '<b>%{y}</b><br>'
+                    'Number of Universities: %{x}<extra></extra>'
+                ),
             )
-        ],
-        layout=go.Layout(
-            title='Most Popular Top Majors Across Universities',
-            xaxis_title='Number of Universities',
-            yaxis_title='Major',
-            yaxis=dict(
-                categoryorder='total ascending',  # Trie les barres par nombre décroissant
-                automargin=True  # Ajuste automatiquement la marge pour éviter de couper les libellés
-            ),
-            hoverlabel=dict(bgcolor="white", font_size=12, font_family="Arial"),
-            margin=dict(l=250, r=50, t=50, b=50),
-        )
+        ]
     )
-    
-    # Ajustement de la taille de la figure
+
+    # Mettre à jour la mise en page
     fig.update_layout(
+        title='Most Popular Top Majors Across Universities (Simplified)',
+        xaxis_title='Number of Universities',
+        yaxis_title='Major',
+        yaxis=dict(
+            categoryorder='total ascending',
+            automargin=True
+        ),
+        hoverlabel=dict(
+            bgcolor="white",
+            font_size=12,
+            font_family="Arial"
+        ),
+        margin=dict(l=250, r=50, t=50, b=50),
         autosize=False,
         width=900,
-        height=600,
+        height=600
     )
-    
-    # Création d'un widget de sortie pour afficher des informations supplémentaires lors d'un clic
-    output = widgets.Output()
 
-    # Définition de la fonction qui gère les événements de clic sur les barres
-    def on_bar_click(trace, points, state):
-        with output:
-            # On efface le contenu précédent du widget
-            output.clear_output()
-            if points.point_inds:
-                idx = points.point_inds[0]
-                major = major_counts.iloc[idx]['major_top1']
-                universities = major_counts.iloc[idx]['Name']
-                print(f"Universities where '{major}' is the top major (Total: {len(universities)}):\n")
-                for uni in universities:
-                    print(f"- {uni}")
-    
-    # On attache le gestionnaire d'événement à la première trace
-    fig.data[0].on_click(on_bar_click)
-    
-    # On affiche la figure et le widget de sortie
-    display(fig, output)
+    # Afficher la figure
+    fig.show()
+
 
 
 
@@ -302,49 +291,46 @@ def plot_top_majors(df, max_majors=20):
 import pandas as pd
 import plotly.graph_objects as go
 import plotly.colors
-import ipywidgets as widgets
 from itertools import cycle
-from IPython.display import display
-
 
 def plot_application_deadlines(df):
     """
-    Crée un graphique à barres interactif pour visualiser les dates limites de candidature.
+    Crée un graphique à barres (sans interaction de clic) pour visualiser
+    les dates limites de candidature (colonne 'Deadline Date' ou 'Application Deadline').
 
-    Arguments :
-        df (pd.DataFrame) : Le DataFrame d'entrée contenant les colonnes 'Name', 'Application Deadline' et 'Deadline Date'.
+    Paramètres :
+    -----------
+    df : pd.DataFrame
+        Le DataFrame d'entrée contenant au moins 'Name', 'Application Deadline' et 'Deadline Date'.
 
     Retour :
-        None : Affiche le graphique et un widget de sortie pour afficher des informations supplémentaires.
+    --------
+    None
+        Affiche simplement la figure Plotly.
     """
 
-    # Fonction interne pour catégoriser le type de date limite (date spécifique ou Rolling Admissions, etc.)
+    # Fonction interne pour distinguer les deadlines (date précise ou Rolling, etc.)
     def categorize_deadline(row):
-        # Si la colonne 'Deadline Date' contient une valeur, on considère que c'est une date spécifique
         if pd.notnull(row['Deadline Date']):
             return 'Specific Date'
         else:
-            # Sinon, on reprend la valeur présente dans 'Application Deadline' (ex : Rolling Admissions)
             return row['Application Deadline']
 
-    # On ajoute une colonne 'Deadline Type' pour différencier les dates spécifiques des autres types
+    df = df.copy()  # Pour éviter de modifier directement le DF d'origine
+
+    # Ajout d'une colonne pour le type de deadline
     df['Deadline Type'] = df.apply(categorize_deadline, axis=1)
 
-    # On extrait le mois depuis la colonne 'Deadline Date' (qui est de type datetime) 
-    # et on convertit ce mois en son nom complet (Janvier, Février, etc.)
+    # Extraire le mois sous forme de nom (ex: "January")
     df['Deadline Month'] = df['Deadline Date'].dt.strftime('%B')
 
-    # Pour les lignes où 'Deadline Month' est NaN, on les remplace par le contenu de 'Deadline Type'
+    # Remplacer les NaN par le type de deadline
     df['Deadline Month'] = df.apply(
         lambda row: row['Deadline Month'] if pd.notnull(row['Deadline Month']) else row['Deadline Type'],
         axis=1
     )
 
-    # On regroupe les données par 'Deadline Month'
-    #   - On agrège les noms de collèges sous forme de liste
-    #   - On combine les valeurs de 'Application Deadline' (pour avoir la liste de deadlines uniques)
-    #   - On prend la première date comme référence pour effectuer un tri ultérieur
-    #   - On prend le premier 'Deadline Type' trouvé
+    # Regrouper par 'Deadline Month'
     deadline_grouped = df.groupby('Deadline Month').agg({
         'Name': list,
         'Application Deadline': lambda x: ', '.join(x.unique()),
@@ -352,81 +338,68 @@ def plot_application_deadlines(df):
         'Deadline Type': 'first'
     }).reset_index()
 
-    # On renomme les colonnes résultantes pour plus de clarté
-    deadline_grouped.columns = ['Deadline', 'Colleges', 'Deadlines', 'Deadline Date', 'Deadline Type']
-
-    # On ajoute une colonne pour le nombre de collèges concernés par chaque deadline
+    # Renommer pour plus de clarté
+    deadline_grouped.columns = [
+        'Deadline', 'Colleges', 'Deadlines', 'Deadline Date', 'Deadline Type'
+    ]
+    # Nombre de collèges par deadline
     deadline_grouped['Number of Colleges'] = deadline_grouped['Colleges'].apply(len)
 
-    # Cette fonction renvoie un entier correspondant au mois pour trier,
-    # ou 13 pour placer les types Rolling / autres en fin de liste
+    # Fonction de tri : si on a une 'Deadline Date', on se base sur le mois ;
+    # sinon on met 13 pour placer Rolling / autres en fin
     def get_sort_key(row):
         if pd.notnull(row['Deadline Date']):
             return row['Deadline Date'].month
         else:
-            return 13  # Valeur plus élevée pour trier en dernier
+            return 13
 
-    # On applique la fonction de tri puis on réorganise le DataFrame
+    # Trier par mois
     deadline_grouped['Sort Key'] = deadline_grouped.apply(get_sort_key, axis=1)
     deadline_grouped = deadline_grouped.sort_values(by='Sort Key')
 
-    # On crée une palette de couleurs. On récupère d'abord la palette de base de Plotly
+    # Palette de couleurs
     unique_deadlines = deadline_grouped['Deadline'].unique()
     num_deadlines = len(unique_deadlines)
-    colors = plotly.colors.qualitative.Plotly  # Palette Plotly par défaut
+    colors = plotly.colors.qualitative.Plotly
 
-    # Si le nombre de catégories dépasse la palette de base,
-    # on répète les couleurs pour éviter les erreurs
     if num_deadlines > len(colors):
-        colors = [color for _, color in zip(range(num_deadlines), cycle(colors))]
+        # On réitère la palette si besoin
+        colors = [c for _, c in zip(range(num_deadlines), cycle(colors))]
 
-    # On mappe chaque date limite à une couleur
     deadline_color_map = dict(zip(unique_deadlines, colors[:num_deadlines]))
     bar_colors = deadline_grouped['Deadline'].map(deadline_color_map)
 
-    # On crée la figure interactive avec Plotly
-    fig = go.FigureWidget(
+    # Construction du bar chart
+    fig = go.Figure(
         data=[
             go.Bar(
                 x=deadline_grouped['Deadline'],
                 y=deadline_grouped['Number of Colleges'],
                 text=deadline_grouped['Number of Colleges'],
-                customdata=deadline_grouped['Colleges'],
-                hovertext=deadline_grouped['Deadlines'],
+                hovertext=deadline_grouped['Deadlines'],  # Optionnel
                 marker_color=bar_colors,
-                hovertemplate='<b>%{x}</b><br>Number of Colleges: %{y}<br>Deadlines: %{hovertext}',
+                hovertemplate=(
+                    '<b>%{x}</b><br>'
+                    'Number of Colleges: %{y}<br>'
+                    'Deadlines: %{hovertext}'
+                    '<extra></extra>'
+                ),
             )
         ],
         layout=go.Layout(
             title='Number of Colleges by Application Deadline',
             xaxis_title='Application Deadline',
             yaxis_title='Number of Colleges',
-            xaxis={'categoryorder': 'array', 'categoryarray': deadline_grouped['Deadline']},
+            xaxis={
+                'categoryorder': 'array',
+                'categoryarray': deadline_grouped['Deadline']
+            },
             hoverlabel=dict(bgcolor="white", font_size=12, font_family="Arial"),
         )
     )
 
-    # Création d'un widget de sortie pour afficher des informations supplémentaires lors du clic sur une barre
-    output = widgets.Output()
-
-    # Définition de la fonction qui gère les événements de clic sur les barres
-    def on_bar_click(trace, points, state):
-        with output:
-            # On efface le contenu précédent du widget
-            output.clear_output()
-            if points.point_inds:
-                idx = points.point_inds[0]
-                deadline = deadline_grouped.iloc[idx]['Deadline']
-                colleges = deadline_grouped.iloc[idx]['Colleges']
-                print(f"Colleges with application deadline '{deadline}':")
-                for college in colleges:
-                    print(f"- {college}")
-
-    # On attache le gestionnaire d'événement de clic à la première trace du graphique
-    fig.data[0].on_click(on_bar_click)
-
-    # On affiche le graphique et le widget de sortie
-    display(fig, output)
+    # Affichage du graphique (sans interaction de clic)
+    fig.show()
 
 
 
